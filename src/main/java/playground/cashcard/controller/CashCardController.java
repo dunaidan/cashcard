@@ -1,5 +1,9 @@
 package playground.cashcard.controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -40,7 +44,13 @@ public class CashCardController {
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<CashCard>> getAllCashCards() {
-        return ResponseEntity.ok(cashCardRepository.findAll());
+    public ResponseEntity<Iterable<CashCard>> getAllCashCards(Pageable pageable) {
+        Page<CashCard> cashCardsPage = cashCardRepository.findAll(
+                PageRequest.of(pageable.getPageNumber(),
+                        pageable.getPageSize(),
+                        pageable.getSortOr(Sort.by(Sort.Direction.DESC, "amount"))
+                ));
+
+        return ResponseEntity.ok(cashCardsPage.getContent());
     }
 }
