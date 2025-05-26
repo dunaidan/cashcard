@@ -30,12 +30,17 @@ public class CashCardController {
     }
 
     @PostMapping
-    private ResponseEntity<Void> createCashCard(@RequestBody CashCard cashCard, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<Void> createCashCard(@RequestBody CashCard cashCard, UriComponentsBuilder uriBuilder) {
         CashCard savedCashCard = cashCardRepository.save(cashCard);
 
         URI locationOfNewCashCard = uriBuilder.path("/cashcards/{id}")
                 .buildAndExpand(savedCashCard.id()).toUri();
 
         return ResponseEntity.created(locationOfNewCashCard).build();
+    }
+
+    @GetMapping
+    public ResponseEntity<Iterable<CashCard>> getAllCashCards() {
+        return ResponseEntity.ok(cashCardRepository.findAll());
     }
 }

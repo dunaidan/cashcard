@@ -8,6 +8,4 @@ import java.util.Optional;
 
 @Repository
 public interface CashCardRepository extends CrudRepository<CashCard, Long> {
-
-     Optional<CashCard> findById(Long id);
 }
