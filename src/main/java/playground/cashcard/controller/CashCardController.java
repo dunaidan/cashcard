@@ -12,7 +12,6 @@ import playground.cashcard.repository.CashCardRepository;
 
 import java.net.URI;
 import java.security.Principal;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/cashcards")
@@ -20,15 +19,15 @@ public class CashCardController {
 
     private final CashCardRepository cashCardRepository;
 
-    private CashCardController(CashCardRepository cashCardRepository) {
+    public CashCardController(CashCardRepository cashCardRepository) {
         this.cashCardRepository = cashCardRepository;
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<CashCard> getCashCardById(@PathVariable("id") Long id, Principal principal) {
-        Optional<CashCard> cashCard = cashCardRepository.findByIdAndOwner(id, principal.getName());
-        if (cashCard.isPresent()) {
-            return ResponseEntity.ok(cashCard.get());
+        CashCard cashCard = findByIdAndOwner(id, principal.getName());
+        if (cashCard != null) {
+            return ResponseEntity.ok(cashCard);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -50,5 +49,21 @@ public class CashCardController {
         Page<CashCard> cashCardsPage = cashCardRepository.findAllByOwner(pageable, principal.getName());
 
         return ResponseEntity.ok(cashCardsPage.getContent());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateCashCard(@PathVariable("id") Long id, @RequestBody CashCard cashCard, Principal principal) {
+        CashCard existingCashCard = findByIdAndOwner(id, principal.getName());
+        if (existingCashCard != null) {
+            CashCard updatedCashCard = new CashCard(existingCashCard.id(), cashCard.amount(), principal.getName());
+            cashCardRepository.save(updatedCashCard);
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.notFound().build();
+    }
+
+    private CashCard findByIdAndOwner(Long id, String owner) {
+        return cashCardRepository.findByIdAndOwner(id, owner);
     }
 }

@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
@@ -133,5 +135,26 @@ class CashCardControllerTest {
                 .getForEntity("/cashcards/99", String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
+    void shouldUpdateAnExistingCashCard() {
+        CashCard cashCard = new CashCard(null, 1000.0, null);
+
+        HttpEntity<CashCard> request = new HttpEntity<>(cashCard);
+        ResponseEntity<Void> response = restTemplate
+                .withBasicAuth("ddunai", "abc123")
+                .exchange("/cashcards/99", HttpMethod.PUT, request, Void.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+        ResponseEntity<String> getResponse = restTemplate
+                .withBasicAuth("ddunai", "abc123")
+                .getForEntity("/cashcards/99", String.class);
+        DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
+        Number id = documentContext.read("$.id");
+        Double amount = documentContext.read("$.amount");
+        assertThat(id).isEqualTo(99);
+        assertThat(amount).isEqualTo(1000.0);
     }
 }

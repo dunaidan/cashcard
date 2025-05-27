@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface CashCardRepository extends CrudRepository<CashCard, Long>, PagingAndSortingRepository<CashCard, Long> {
 
-    Optional<CashCard> findByIdAndOwner(Long id, String owner);
+    CashCard findByIdAndOwner(Long id, String owner);
 
     Page<CashCard> findAllByOwner(Pageable pageable, String owner);
 }
