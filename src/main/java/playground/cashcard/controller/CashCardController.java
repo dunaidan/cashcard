@@ -11,6 +11,7 @@ import playground.cashcard.model.entity.CashCard;
 import playground.cashcard.repository.CashCardRepository;
 
 import java.net.URI;
+import java.security.Principal;
 import java.util.Optional;
 
 @RestController
@@ -24,8 +25,8 @@ public class CashCardController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CashCard> getCashCardById(@PathVariable("id") Long id) {
-        Optional<CashCard> cashCard = cashCardRepository.findById(id);
+    public ResponseEntity<CashCard> getCashCardById(@PathVariable("id") Long id, Principal principal) {
+        Optional<CashCard> cashCard = cashCardRepository.findByIdAndOwner(id, principal.getName());
         if (cashCard.isPresent()) {
             return ResponseEntity.ok(cashCard.get());
         } else {
@@ -34,8 +35,9 @@ public class CashCardController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createCashCard(@RequestBody CashCard cashCard, UriComponentsBuilder uriBuilder) {
-        CashCard savedCashCard = cashCardRepository.save(cashCard);
+    public ResponseEntity<Void> createCashCard(@RequestBody CashCard cashCard, UriComponentsBuilder uriBuilder, Principal principal) {
+        CashCard cashCardWithOwner = new CashCard(null, cashCard.amount(), principal.getName());
+        CashCard savedCashCard = cashCardRepository.save(cashCardWithOwner);
 
         URI locationOfNewCashCard = uriBuilder.path("/cashcards/{id}")
                 .buildAndExpand(savedCashCard.id()).toUri();
@@ -44,8 +46,8 @@ public class CashCardController {
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<CashCard>> getAllCashCards(@SortDefault(sort = "amount", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<CashCard> cashCardsPage = cashCardRepository.findAll(pageable);
+    public ResponseEntity<Iterable<CashCard>> getAllCashCards(@SortDefault(sort = "amount", direction = Sort.Direction.DESC) Pageable pageable, Principal principal) {
+        Page<CashCard> cashCardsPage = cashCardRepository.findAllByOwner(pageable, principal.getName());
 
         return ResponseEntity.ok(cashCardsPage.getContent());
     }

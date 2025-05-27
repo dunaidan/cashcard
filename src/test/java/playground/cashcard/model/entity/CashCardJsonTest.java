@@ -26,9 +26,9 @@ class CashCardJsonTest {
     @BeforeEach
     void setUp() {
         cashCards = Arrays.array(
-                new CashCard(99L, 123.45),
-                new CashCard(100L, 150.00),
-                new CashCard(101L, 250.00)
+                new CashCard(99L, 123.45, "ddunai"),
+                new CashCard(100L, 150.00, "ddunai"),
+                new CashCard(101L, 250.00, "ddunai")
         );
     }
 
@@ -46,9 +46,9 @@ class CashCardJsonTest {
     void cashCardDeserializationTest() throws IOException {
         String expected = """
                 [
-                    { "id": 99, "amount": 123.45 },
-                    { "id": 100, "amount": 150.00 },
-                    { "id": 101, "amount": 250.00 }
+                    { "id": 99, "amount": 123.45, "owner": "ddunai" },
+                    { "id": 100, "amount": 150.00, "owner": "ddunai" },
+                    { "id": 101, "amount": 250.00, "owner": "ddunai" }
                 ]
                 """;
 
