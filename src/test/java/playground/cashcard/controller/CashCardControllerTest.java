@@ -157,4 +157,25 @@ class CashCardControllerTest {
         assertThat(id).isEqualTo(99);
         assertThat(amount).isEqualTo(1000.0);
     }
+
+    @Test
+    void shouldDeleteAnExistingCashCard() {
+        ResponseEntity<Void> response = restTemplate
+                .withBasicAuth("ddunai", "abc123")
+                .exchange("/cashcards/100", HttpMethod.DELETE, null, Void.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+        ResponseEntity<String> getResponse = restTemplate
+                .withBasicAuth("ddunai", "abc123")
+                .getForEntity("/cashcards/100", String.class);
+        assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void shouldNotDeleteACashCardThatDoesNotExist() {
+        ResponseEntity<Void> response = restTemplate
+                .withBasicAuth("ddunai", "abc123")
+                .exchange("/cashcards/99999", HttpMethod.DELETE, null, Void.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
 }
